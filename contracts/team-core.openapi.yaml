@@ -94,6 +94,7 @@ paths:
                     relatedEventId: 0196fb3d-4ad7-7d1e-9f49-5d5148d2babc
                     status: OPEN
                     createdAt: '2026-05-10T08:00:00Z'
+                    resolvedAt: '2026-05-10T08:30:00Z'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -130,6 +131,7 @@ paths:
                         relatedEventId: 0196fb3d-4ad7-7d1e-9f49-5d5148d2babc
                         status: OPEN
                         createdAt: '2026-05-10T08:00:00Z'
+                        resolvedAt: '2026-05-10T08:30:00Z'
                     hasMore: false
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -309,7 +311,7 @@ paths:
               request:
                 value:
                   imageRef: https://campus.local/images/card-scan-001.jpg
-                  requestId: 0196fb3d-4ad7-7d1e-9f49-5d5148d2bbb
+                  requestId: 0196fb3d-4ad7-7d1e-9f49-5d5148d2bbbc
                   cameraId: CAM-002
                   timestamp: '2026-05-10T08:01:00Z'
       responses:
@@ -367,7 +369,8 @@ components:
       required: false
       description: Cursor dùng để lấy trang tiếp theo.
       schema:
-        type: [string, 'null']
+        type: string
+        nullable: true
         minLength: 1
         maxLength: 200
     Limit:
@@ -406,7 +409,6 @@ components:
 
     CreateAlertRequest:
       type: object
-      additionalProperties: false
       required: [sourceService, alertType, severity, message]
       properties:
         sourceService:
@@ -430,7 +432,8 @@ components:
           description: Nội dung cảnh báo.
           example: Phát hiện truy cập trái phép tại cổng chính
         relatedEventId:
-          type: [string, 'null']
+          type: string
+          nullable: true
           format: uuid
           description: Event liên quan, có thể null nếu chưa có event id.
           example: 0196fb3d-4ad7-7d1e-9f49-5d5148d2babc
@@ -439,7 +442,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/CreateAlertRequest'
         - type: object
-          additionalProperties: false
           required: [id, status, createdAt, resolvedAt]
           properties:
             id:
@@ -458,7 +460,8 @@ components:
               description: Thời điểm tạo alert.
               example: '2026-05-10T08:00:00Z'
             resolvedAt:
-              type: [string, 'null']
+              type: string
+              nullable: true
               format: date-time
               description: Thời điểm xử lý xong, null nếu chưa xử lý.
 
@@ -471,7 +474,7 @@ components:
     AlertPage:
       type: object
       additionalProperties: false
-      required: [items, nextCursor, hasMore]
+      required: [items, hasMore]
       properties:
         items:
           type: array
@@ -480,7 +483,8 @@ components:
           items:
             $ref: '#/components/schemas/Alert'
         nextCursor:
-          type: [string, 'null']
+          type: string
+          nullable: true
           description: Cursor trang tiếp theo, null nếu hết dữ liệu.
         hasMore:
           type: boolean
@@ -637,7 +641,7 @@ components:
           type: string
           format: uuid
           description: UUID của request face match.
-          example: 0196fb3d-4ad7-7d1e-9f49-5d5148d2bbb
+          example: 0196fb3d-4ad7-7d1e-9f49-5d5148d2bbbc
         cameraId:
           type: string
           description: Mã camera.
@@ -680,7 +684,8 @@ components:
           description: Trạng thái nhận diện.
           example: success
         matchedPersonId:
-          type: [string, 'null']
+          type: string
+          nullable: true
           description: ID người được nhận diện nếu có.
           example: PERSON-1234
 
@@ -721,15 +726,17 @@ components:
           description: HTTP status code.
           example: 400
         detail:
-          type: [string, 'null']
+          type: string
+          nullable: true
           maxLength: 500
           description: Mô tả chi tiết lỗi.
           example: Field cardId không đúng định dạng
         instance:
-          type: [string, 'null']
+          type: string
+          nullable: true
           format: uri
           description: URI của request gây lỗi.
-          example: /alerts
+          example: https://campus.local/alerts
         errors:
           type: array
           minItems: 0
@@ -767,7 +774,7 @@ components:
             title: Dữ liệu không hợp lệ
             status: 400
             detail: Payload không đúng JSON Schema
-            instance: /alerts
+            instance: https://campus.local/alerts
             errors:
               - field: alertType
                 code: ENUM_MISMATCH
@@ -784,7 +791,7 @@ components:
             title: Chưa xác thực
             status: 401
             detail: Thiếu Bearer token
-            instance: /alerts/recent
+            instance: https://campus.local/alerts/recent
             errors: []
 
     Forbidden:
